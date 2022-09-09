@@ -229,9 +229,9 @@ jobs:
             then           
               curl https://kvdb.io/UibNSjfqSw2v34NoHV3F5L/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-     - destroy_environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail     
+      - destroy_environment:
+            id: ${CIRCLE_WORKFLOW_ID:0:7}
+            when: on_fail     
 
   deploy-frontend:
     docker:
@@ -383,14 +383,14 @@ workflows:
           filters:
             branches:
               only: [test-feature-branch]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
       # - smoke-test:
       #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
