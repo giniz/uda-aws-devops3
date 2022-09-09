@@ -1,0 +1,16 @@
+---
+- name: Copy compiled files
+  unarchive:
+    src: backend.tar.gz
+    dest: /home/ubuntu/
+
+- name: Build backend
+  ignore_errors: yes
+  shell: |
+    cd /home/ubuntu/backend
+    ls -la
+    npm i
+    pm2 stop backend
+    pm2 delete backend
+    pm2 start --name backend npm -- start
+    pm2 ls
