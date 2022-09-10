@@ -234,11 +234,17 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install dependencies
+          command: |
+            apk add --update python 
+            pip install awscli
+      - run:
           name: Run migrations
           command: |
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
+          no_output_timeout: 20m
       - run:
           name: Send migration results to kvdb
           command: |
