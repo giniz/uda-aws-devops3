@@ -397,6 +397,15 @@ jobs:
             yum install -y tar gzip curl
             curl -sL https://rpm.nodesource.com/setup_10.x | bash -
             yum install -y nodejs
+       run:
+          name: Save OldWorkflow ID
+          working_directory: ./.circleci/files
+          command: |
+            OLD_WF_ID=$(aws cloudformation list-exports \
+              --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
+            echo "OLD_WF_ID=$OLD_WF_ID"
+            curl --insecure https://kvdb.io/UibNSjfqSw2v34NoHV3F5L/OLD_WF_ID --request PUT -d "$OLD_WF_ID"
       - run:
           name: Update cloudfront distribution
           command: |
@@ -412,24 +421,44 @@ jobs:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
 
-# cleanup:
-#     docker:
-#       - image: amazon/aws-cli
-#     steps:
-#       - checkout
-#       - run:
-#           name: Get old stack workflow id
-#           command: |
-#             # your code here
-#             export OldWorkflowID="the id here"
-#             export STACKS=[] #put the list of stacks here
-#       - run:
-#           name: Remove old stacks and files
-#           command: |
-#             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-#             then
-#               # your code here
-#             fi
+cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Get old stack workflow id
+          command: |
+            # your code here
+            export OLD_WF_ID=$(curl --insecure https://kvdb.io/UibNSjfqSw2v34NoHV3F5L/OLD_WF_ID)
+            echo "Old Workflow ID: ${OLD_WF_ID}"
+            NEW_WF_ID=${CIRCLE_WORKFLOW_ID:0:7}
+            echo "New Workflow ID: ${NEW_WF_ID}"
+            export NEW_WF_ID=$NEW_WF_ID
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+              --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+            echo Stack names: "${STACKS[@]}"
+      - run:
+          name: Remove old stacks and files
+          command: |
+            if [[ "${STACKS[@]}" =~ "${OLD_WF_ID}" ]]
+            then
+              # your code here
+            fi
+            if [ -z "$OLD_WF_ID" ]
+            then
+                echo "No OLD_WF_ID -> nothing to cleanup."
+            else
+                if [[ "$NEW_WF_ID" != "$OLD_WF_ID" ]]
+                then
+                    echo "Diff Workflow ID -> delete old stack."
+                    aws s3 rm "s3://udapeople-${OLD_WF_ID}" --recursive
+                    aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_WF_ID}"
+                    aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_WF_ID}"
+                else
+                    echo "Same Workflow ID -> nothing to cleanup."
+                fi
+            fi
             
 
 workflows:
@@ -462,5 +491,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
