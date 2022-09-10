@@ -69,6 +69,11 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
+          name: Install dependencies
+          command: |
+            apt-get install python3
+            pip install awscli
+      - run:
           name: Build front-end
           command: |
             cd frontend
@@ -236,7 +241,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update python 
+            apt-get install python3
             pip install awscli
       - run:
           name: Run migrations
