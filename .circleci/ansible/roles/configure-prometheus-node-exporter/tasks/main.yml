@@ -1,4 +1,4 @@
-= name: "add exporter user"
+- name: "add exporter user"
   become: True
   shell: |
     sudo useradd --no-create-home node_exporter
