@@ -319,7 +319,9 @@ jobs:
             npm run build
             cd ..
             # tar dir
-            tar -C backend -zcvf backend.tar.gz .
+            echo "Current directory: $pwd"
+            tar -zcvf backend.tar.gz backend/
+            ls -la .
             cd .circleci/ansible
             echo "Contents of the inventory.txt file is --------"
             cat inventory.txt
