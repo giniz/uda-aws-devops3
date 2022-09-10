@@ -434,7 +434,7 @@ jobs:
             echo "Old Workflow ID: ${OLD_WF_ID}"
             NEW_WF_ID=${CIRCLE_WORKFLOW_ID:0:7}
             echo "New Workflow ID: ${NEW_WF_ID}"
-            
+
             if [ -z "$OLD_WF_ID" ]
             then
                 echo "No OLD_WF_ID -> nothing to cleanup."
@@ -442,7 +442,12 @@ jobs:
                 if [[ "$NEW_WF_ID" != "$OLD_WF_ID" ]]
                 then
                     echo "Diff Workflow ID -> delete old stack."
-                    aws s3 rm "s3://udapeople-${OLD_WF_ID}" --recursive
+                    S3_BUCKET="udapeople-${OLD_WF_ID}"
+                    if aws s3 ls "s3://$S3_BUCKET" 2>&1 | grep -q 'NoSuchBucket'
+                    then
+                      aws s3 rm s3://$S3_BUCKET --recursive
+                      aws s3 rb s3://$S3_BUCKET --force
+                    fi
                     aws cloudformation delete-stack --stack-name "udapeople-frontend-${OLD_WF_ID}"
                     aws cloudformation delete-stack --stack-name "udapeople-backend-${OLD_WF_ID}"
                 else
@@ -468,7 +473,7 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
-              only: [main]
+              only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
