@@ -357,12 +357,10 @@ jobs:
             apk add --update npm
             apk add --no-cache python3 py3-pip && pip3 install --upgrade pip && pip install awscli
       - run:
-          name: Get backend url
-          command: |
-            export API_URL=$(curl --insecure https://kvdb.io/UibNSjfqSw2v34NoHV3F5L/BACKEND_URL)
-      - run:
           name: Backend smoke test.
           command: |
+            API_URL=$(curl --insecure https://kvdb.io/UibNSjfqSw2v34NoHV3F5L/BACKEND_URL)
+            echo "Backend URL: ${API_URL}"
             if curl "${API_URL}/api/status" | grep -i "ok"
             then
               return 0
@@ -374,11 +372,10 @@ jobs:
           command: |
               URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
               curl --insecure https://kvdb.io/UibNSjfqSw2v34NoHV3F5L/FRONTEND_URL --request PUT -d "$URL"
-              echo ${URL}
+              echo "Frontend URL: ${URL}"
               if curl -s ${URL} | grep "Welcome"
               then
-                # Change this to 0 after the job fails
-                return 1
+                return 0
               else
                 return 1
               fi
