@@ -430,17 +430,11 @@ jobs:
           name: Fetch old stack workflow id
           command: |
             # your code here
-            export OLD_WF_ID=$(curl --insecure https://kvdb.io/UibNSjfqSw2v34NoHV3F5L/OLD_WF_ID)
+            OLD_WF_ID=$(curl --insecure https://kvdb.io/UibNSjfqSw2v34NoHV3F5L/OLD_WF_ID)
             echo "Old Workflow ID: ${OLD_WF_ID}"
             NEW_WF_ID=${CIRCLE_WORKFLOW_ID:0:7}
             echo "New Workflow ID: ${NEW_WF_ID}"
-            export NEW_WF_ID=$NEW_WF_ID
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
-            echo Stack names: "${STACKS[@]}"
-      - run:
-          name: Remove old stacks and files
-          command: |
+            
             if [ -z "$OLD_WF_ID" ]
             then
                 echo "No OLD_WF_ID -> nothing to cleanup."
