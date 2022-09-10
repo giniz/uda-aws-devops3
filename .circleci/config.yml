@@ -391,10 +391,9 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            "No need"
+      # - run:
+      #     name: Install dependencies
+      #     command: |
       - run:
           name: Update cloudfront distribution
           command: |
