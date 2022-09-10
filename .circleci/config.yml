@@ -397,7 +397,7 @@ jobs:
             yum install -y tar gzip curl
             curl -sL https://rpm.nodesource.com/setup_10.x | bash -
             yum install -y nodejs
-       run:
+      - run:
           name: Save OldWorkflow ID
           working_directory: ./.circleci/files
           command: |
@@ -427,7 +427,7 @@ cleanup:
     steps:
       - checkout
       - run:
-          name: Get old stack workflow id
+          name: Fetch old stack workflow id
           command: |
             # your code here
             export OLD_WF_ID=$(curl --insecure https://kvdb.io/UibNSjfqSw2v34NoHV3F5L/OLD_WF_ID)
