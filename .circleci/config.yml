@@ -33,8 +33,8 @@ commands:
       - run:
           name: Destroy udapeople frontend stack and S3 bucket
           command: |
-            aws s3 rm s3://udapeople-<< parameters.id >> --recursive
-            aws s3 rb s3://udapeople-<< parameters.id >> --force
+            # aws s3 rm s3://udapeople-<< parameters.id >> --recursive
+            # aws s3 rb s3://udapeople-<< parameters.id >> --force
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
           when: << parameters.when >>
 
@@ -280,7 +280,7 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -cvfz artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            tar -zcvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - persist_to_workspace:
           root: .
@@ -317,8 +317,8 @@ jobs:
             npm i
             npm run build
             cd ..
-            # zip dir
-            tar -C backend -cvfz backend.tar.gz .
+            # tar dir
+            tar -C backend -zcvf backend.tar.gz .
             cd .circleci/ansible
             echo "Contents of the inventory.txt file is --------"
             cat inventory.txt
