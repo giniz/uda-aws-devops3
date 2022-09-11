@@ -404,6 +404,7 @@ jobs:
             OLD_WF_ID=$(aws cloudformation list-exports \
               --query "Exports[?Name==\`WorkflowID\`].Value" \
               --no-paginate --output text)
+            OLD_WF_ID=${OLD_WF_ID##*-}
             echo "OLD_WF_ID=$OLD_WF_ID"
             curl --insecure https://kvdb.io/UibNSjfqSw2v34NoHV3F5L/OLD_WF_ID --request PUT -d "$OLD_WF_ID"
       - run:
